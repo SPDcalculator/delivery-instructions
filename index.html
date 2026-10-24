@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Instructions</title>
+<style>
+  :root {
+    --bg: #121212;
+    --card: #1e1e1e;
+    --text: #e0e0e0;
+    --accent: #4fc3f7;
+    --border: #333;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 16px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.6rem; margin: 0 0 12px; color: var(--accent); }
+  h2 { font-size: 1.2rem; margin: 24px 0 10px; color: #90caf9; }
+  input[type="search"] {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #2a2a2a;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 1.05rem; color: #fff; }
+  .location { color: #aaa; font-size: 0.9rem; margin-bottom: 6px; }
+  .note { margin: 0; }
+  .rules li, .cod li { margin-bottom: 8px; }
+  .hidden { display: none; }
+  footer { margin-top: 40px; font-size: 0.85rem; color: #777; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Delivery Instructions</h1>
+  <input type="search" id="search" placeholder="Search account name, town, or keyword..." autofocus>
+
+  <section id="rules-section">
+    <h2>General Rules</h2>
+    <ul class="rules" id="rules"></ul>
+
+    <h2>C.O.D. Instructions</h2>
+    <ul class="cod" id="cod"></ul>
+  </section>
+
+  <h2>Account-Specific Notes</h2>
+  <div id="accounts"></div>
+
+  <footer>Last updated from company delivery instructions document</footer>
+
+<script>
+const data = {
+  generalRules: [
+    "Do not stack on, above or below any shelves.",
+    "Only deliver to locations accessible by hand truck.",
+    "Refrain from using unsafe staircases, ramps, or floors that could lead to slips or injuries.",
+    "We do not pack out, opening of cases, taking six packs out or 12 packs out of trays.",
+    "Do not mix and match products or flavors when stacking at accounts. Mike's flavors, Twisted Tea, etc.",
+    "Do not stack kegs on any type of plastic rings or rollers."
+  ],
+  codInstructions: [
+    "Accounts that are on C.O.D. and the customer instructs you'll need to wait for a money order, certified check or regular check: Call one of the warehouse managers/supervisor Pete, Don or Bill to get instructions.",
+    "The instructions will basically be to tell the account you have authorization to wait 15 minutes then you'll have to leave.",
+    "If the account is on C.O.D. and they didn't know (\"Surprise C.O.D.\") and they're going to try to get off COD, the instructions will basically be the same — you must call Pete, Don or Bill.",
+    "The warehouse supervisors will always make the final decision before bringing any orders back to the warehouse."
+  ],
+  accounts: [
+    {"name": "Count Basie Theater", "location": "Red Bank", "note": "All deliveries will be left upstairs.", "date": "3/05/2020"},
+    {"name": "Bar Anticipation", "location": "Belmar", "note": "No delivers into the small basement.", "date": "3/05/2020"},
+    {"name": "Flynn's Catering", "location": "Phillipsburg", "note": "All deliveries will be left upstairs.", "date": "2/17/2020"},
+    {"name": "Europa South", "location": "Point Pleasant", "note": "All deliveries will be left upstairs."},
+    {"name": "Knights of Columbus", "location": "Port Reading", "note": "Do not go upstairs."},
+    {"name": "Court Tavern", "location": "New Brunswick", "note": "Do not go upstairs."},
+    {"name": "Red Wolf Inn", "location": "Belvidere", "note": "All deliveries will be left upstairs."},
+    {"name": "Idle Hour", "location": "Point Pleasant", "note": "All deliveries will be left upstairs."},
+    {"name": "Social", "location": "Trenton", "note": "All deliveries will be left upstairs."},
+    {"name": "Witty's", "location": "South River", "note": "All deliveries will be left upstairs."},
+    {"name": "Matiz Shore House", "location": "100 Brighton Ave, Long Branch", "note": "All deliveries will be left upstairs."},
+    {"name": "Mi Tierra", "location": "New Brunswick", "note": "We're no longer going in their basement for deliveries."},
+    {"name": "Pattenburg House", "location": "Asbury", "note": "Beer is to be left outside the building. (REPAIRED 2/17/2020 — verify current status)"},
+    {"name": "Water & Wine Ristorante", "location": "Watchung", "note": "Do not go down the staircase and we are not using their hand truck to do it. The beer is to be left upstairs."},
+    {"name": "Angelina's", "location": "South Plainfield", "note": "We're not going in the basement, just handing it through the window to the customer."},
+    {"name": "Tap House / The Boathouse", "location": "Spring Lake / Belmar", "note": "If the coolers are flooded with water or a mess, the beers are to be left outside. We do not deliver beer into water."},
+    {"name": "Monmouth Liquors", "location": "Red Bank", "note": "We do not carry beer down the aisles. The customer is to go down the aisle and you will hand him the beer. We only deliver to hand truck accessible locations."},
+    {"name": "Save Rite Liquors / Trezza Liquor (or ANY account)", "location": "Ocean Township / Red Bank", "note": "It is not the driver's responsibility to mix and match products (Mike's, Twisted Tea, Sam's, etc.). The company is aware of this."},
+    {"name": "Jr's Liquors", "location": "Forked River", "note": "We are not delivering beer to the back portion of the cooler. We only deliver to hand truck accessible locations."},
+    {"name": "Twenty/20 Taphouse", "location": "Somerset", "note": "If the elevator is broken we are not using the staircase to go into the basement."},
+    {"name": "Caffrey's", "location": "Forked River", "note": "Do not deliver kegs or cases into the trailer."},
+    {"name": "Yesterday's Restaurant", "location": "Bayville", "note": "If the cooler is not hand truck accessible we are not carrying the cases in one at a time."},
+    {"name": "Reef and Barrel", "location": "Sea Girt", "note": "Leave the kegs outside the cooler. If there is not a clear path getting to the cooler we leave the kegs at the bottom of the steps."},
+    {"name": "Calloway's Restaurant", "location": "West Creek", "note": "If the staircase is wet and slippery or if the basement is flooding we are not doing it. This goes for any account."},
+    {"name": "Kim Marie's", "location": "Asbury Park", "note": "We will no longer be picking up empty kegs until they are moved to a hand truck accessible location."},
+    {"name": "Asbury Festhalle", "location": "Asbury", "note": "It is not our job to sort through empty kegs looking for the ones that belong to Shore Point. They will have their employee sort them out for you."},
+    {"name": "Brothers Restaurant (or any account)", "location": "Red Bank", "note": "If the empty kegs are infested with cockroaches, do not pick them up."},
+    {"name": "Englishtown Liquors", "location": "Englishtown", "note": "Not stacking in locations of the cooler that's not hand truck accessible."},
+    {"name": "Pops Liquor", "location": "Neptune", "note": "Will be dropping beer in the cooler for customer to put away."},
+    {"name": "Krauszer's", "location": "101 N Broadway, South Amboy", "note": "We do not stack on the platform in the basement."},
+    {"name": "Bay Head Yacht Club", "location": "Bay Head", "note": "We will NOT be parking in their new designated parking zone. We will only park in the original loading zone backed down next to the tennis courts. If they do not let us park in the original spot they will not be getting their delivery. The company has already been notified."},
+    {"name": "Parker House", "location": "Sea Girt", "note": "Deliveries no longer permitted on First Avenue (County Road 49). Use the taxi stand on Beacon Blvd. Any trucks stopping/parking on First Avenue will be issued summonses. Coordinate delivery times so as not to interfere with taxi operations. Use extreme caution in beachfront areas."}
+  ]
+};
+
+// Render rules
+const rulesEl = document.getElementById('rules');
+data.generalRules.forEach(r => {
+  const li = document.createElement('li');
+  li.textContent = r;
+  rulesEl.appendChild(li);
+});
+
+const codEl = document.getElementById('cod');
+data.codInstructions.forEach(r => {
+  const li = document.createElement('li');
+  li.textContent = r;
+  codEl.appendChild(li);
+});
+
+// Render accounts
+const accountsEl = document.getElementById('accounts');
+function renderAccounts(list) {
+  accountsEl.innerHTML = '';
+  if (list.length === 0) {
+    accountsEl.innerHTML = '<p>No matching accounts found.</p>';
+    return;
+  }
+  list.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <h3>${a.name}</h3>
+      <div class="location">${a.location}${a.date ? ' · Added ' + a.date : ''}</div>
+      <p class="note">${a.note}</p>
+    `;
+    accountsEl.appendChild(div);
+  });
+}
+renderAccounts(data.accounts);
+
+// Search
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) {
+    document.getElementById('rules-section').classList.remove('hidden');
+    renderAccounts(data.accounts);
+    return;
+  }
+  document.getElementById('rules-section').classList.add('hidden');
+  const filtered = data.accounts.filter(a =>
+    a.name.toLowerCase().includes(q) ||
+    a.location.toLowerCase().includes(q) ||
+    a.note.toLowerCase().includes(q)
+  );
+  renderAccounts(filtered);
+});
+</script>
+</body>
+</html>
